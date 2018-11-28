@@ -8,6 +8,8 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
+import java.util.HashMap;
+
 /**
  * A basic custom view for drawing on.
  * @author Joel Ross
@@ -25,6 +27,7 @@ public class DrawingView extends View {
     private Paint whitePaint; //drawing variables (pre-defined for speed)
 
     public Ball ball; //public for easy access
+
 
     /**
      * We need to override all the constructors, since we don't know which will be called
@@ -46,6 +49,7 @@ public class DrawingView extends View {
         //set up drawing variables ahead of time
         whitePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         whitePaint.setColor(Color.WHITE);
+
 
     }
 

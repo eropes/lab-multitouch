@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.HashMap;
+
 /**
  * An example SurfaceView for generating graphics on
  * @author Joel Ross
@@ -32,6 +34,8 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
 
     public Ball ball; //public for easy access
 
+    private HashMap<Integer, Ball> ballHashMap;
+
 
     /**
      * We need to override all the constructors, since we don't know which will be called
@@ -46,7 +50,7 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
 
     public DrawingSurfaceView(Context context, AttributeSet attrs, int defaultStyle) {
         super(context, attrs, defaultStyle);
-
+        ballHashMap = new HashMap<>();
         viewWidth = 1; viewHeight = 1; //positive defaults; will be replaced when #surfaceChanged() is called
 
         // register our interest in hearing about changes to our surface
@@ -71,6 +75,23 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
         //make ball
         ball = new Ball(viewWidth/2, viewHeight/2, 100);
     }
+
+    public synchronized void addTouch(int id, float x, float y) {
+        Ball newBall = new Ball(x, y, 100);
+        ballHashMap.put(id, newBall);
+        Log.v("Emma", ballHashMap.get(id).toString());
+    }
+
+    public synchronized void removeTouch(int id) {
+        ballHashMap.remove(id);
+    }
+
+    public synchronized void moveTouch(int id, float x, float y) {
+        ballHashMap.get(id).cx = x;
+        ballHashMap.get(id).cy = y;
+    }
+
+
 
 
     /**
@@ -115,10 +136,14 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
      */
     public synchronized void render(Canvas canvas){
         if(canvas == null) return; //if we didn't get a valid canvas for whatever reason
-
+        for(Ball value: ballHashMap.values()) {
+            Float x = value.cx;
+            Log.v("Emma", ((Float) x).toString());
+            canvas.drawCircle(value.cx, value.cy, value.radius, whitePaint);
+        }
         canvas.drawColor(Color.rgb(51,10,111)); //purple out the background
+        // canvas.drawCircle(ball.cx, ball.cy, ball.radius, whitePaint); //we can draw directly onto the canvas
 
-        canvas.drawCircle(ball.cx, ball.cy, ball.radius, whitePaint); //we can draw directly onto the canvas
     }
 
 

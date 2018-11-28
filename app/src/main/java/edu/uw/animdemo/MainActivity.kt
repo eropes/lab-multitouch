@@ -44,10 +44,12 @@ class MainActivity : AppCompatActivity() {
         val y = event.y - supportActionBar!!.height //closer to center...
 
         val action = MotionEventCompat.getActionMasked(event)
+        val pointerIndex = MotionEventCompat.getActionIndex(event)
+        val pointerId = MotionEventCompat.getPointerId(event, pointerIndex)
         when (action) {
             MotionEvent.ACTION_DOWN //put finger down
             -> {
-                //Log.v(TAG, "finger down");
+                Log.v(TAG, "finger down");
 
                 val xAnim = ObjectAnimator.ofFloat(view!!.ball, "x", x)
                 xAnim.duration = 1000
@@ -57,6 +59,7 @@ class MainActivity : AppCompatActivity() {
                 val set = AnimatorSet()
                 set.playTogether(yAnim, xAnim)
                 set.start()
+                this.view!!.addTouch(pointerId, MotionEventCompat.getX(event, pointerIndex), MotionEventCompat.getY(event, pointerIndex))
 
                 //                view.ball.cx = x;
                 //                view.ball.cy = y;
@@ -66,12 +69,35 @@ class MainActivity : AppCompatActivity() {
             }
             MotionEvent.ACTION_MOVE //move finger
             ->
-                //Log.v(TAG, "finger move");
+            {//Log.v(TAG, "finger move");
                 //                view.ball.cx = x;
                 //                view.ball.cy = y;
+                for (i in 0 until MotionEventCompat.getPointerCount(event)) {
+                    view!!.moveTouch(event.getPointerId(i), MotionEventCompat.getX(event, i), MotionEventCompat.getY(event, i))
+                }
                 return true
+            }
+            MotionEvent.ACTION_POINTER_DOWN
+            -> {
+                Log.v(TAG, "Another finger down")
+
+                this.view!!.addTouch(pointerIndex, MotionEventCompat.getX(event, pointerIndex), MotionEventCompat.getY(event, pointerIndex))
+
+                return true
+            }
+            MotionEvent.ACTION_POINTER_UP
+            -> {
+                Log.v(TAG, "Finger lifted")
+                this.view!!.removeTouch(pointerId)
+                return true
+            }
             MotionEvent.ACTION_UP //lift finger up
-                , MotionEvent.ACTION_CANCEL //aborted gesture
+             -> {
+                Log.v(TAG, "Last finger lifted")
+                this.view!!.removeTouch(pointerId)
+                return true
+            }
+                MotionEvent.ACTION_CANCEL //aborted gesture
                 , MotionEvent.ACTION_OUTSIDE //outside bounds
             -> return super.onTouchEvent(event)
             else -> return super.onTouchEvent(event)
